@@ -58,6 +58,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _position = 0;
+  List<String> _toDelete = [];
   bool _isFinished = false;
   List<AssetEntity> _screenshots = [];
   void _incrementPosition() {
@@ -142,23 +143,22 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: .center,
           children: [
             const Text('Test de lapplication de tri de photo'),
-            _isFinished ? 
-              const Text('All screenshots sorted') 
-              : _screenshots.isEmpty ? 
-              CircularProgressIndicator()
-              : Dismissible(
+            _isFinished
+                ? const Text('All screenshots sorted')
+                : _screenshots.isEmpty
+                ? CircularProgressIndicator()
+                : Dismissible(
                     key: ValueKey(_screenshots[_position].id),
                     onDismissed: (direction) {
                       if (direction == DismissDirection.startToEnd) {
-                      print("delete");
-                     
-                    }else if(direction == DismissDirection.endToStart) {
-                      print("keep");
+                        _toDelete.add(_screenshots[_position].id);
+                        print(_toDelete.length);
+                      } else if (direction == DismissDirection.endToStart) {
+                        print("keep");
+                      }
+                      _incrementPosition();
+                    },
 
-                    }
-                    _incrementPosition();
-                     },
-                    
                     child: AssetEntityImage(
                       _screenshots[_position],
                       isOriginal: false, // Defaults to `true`.
