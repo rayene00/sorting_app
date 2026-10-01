@@ -149,8 +149,16 @@ class _MyHomePageState extends State<MyHomePage> {
               : Dismissible(
                     key: ValueKey(_screenshots[_position].id),
                     onDismissed: (direction) {
-                     _incrementPosition();
-                    },
+                      if (direction == DismissDirection.startToEnd) {
+                      print("delete");
+                     
+                    }else if(direction == DismissDirection.endToStart) {
+                      print("keep");
+
+                    }
+                    _incrementPosition();
+                     },
+                    
                     child: AssetEntityImage(
                       _screenshots[_position],
                       isOriginal: false, // Defaults to `true`.
