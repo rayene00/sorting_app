@@ -68,10 +68,10 @@ class _MyHomePageState extends State<MyHomePage> {
   int _position = 0;
   List<AssetEntity> _screenshots = [];
   void _incrementPosition() {
-    if (photos.length > _position + 1) {
+    if (_screenshots.length > _position + 1) {
       setState(() {
         _position++;
-        print(photos[_position].name);
+        print(_screenshots[_position]);
 
         // This call to setState tells the Flutter framework that something has
         // changed in this State, which causes it to rerun the build method below
@@ -110,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    bool isPhotoNext = photos.length > _position + 1;
+    bool isPhotoNext = _screenshots.length > _position + 1;
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
