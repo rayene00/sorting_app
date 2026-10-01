@@ -147,11 +147,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 ? const Text('All screenshots sorted')
                 : _screenshots.isEmpty
                 ? CircularProgressIndicator()
-                : Dismissible(
+                :Expanded(child: 
+                 Dismissible(
                     key: ValueKey(_screenshots[_position].id),
                     onDismissed: (direction) {
                       if (direction == DismissDirection.startToEnd) {
-                        _toDelete.add(_screenshots[_position].id);
+                        setState(() {
+                          _toDelete.add(_screenshots[_position].id);
+                        });
+                        
                         print(_toDelete.length);
                       } else if (direction == DismissDirection.endToStart) {
                         print("keep");
@@ -161,7 +165,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
                     child: AssetEntityImage(
                       _screenshots[_position],
-                      isOriginal: false, // Defaults to `true`.
+                      isOriginal: false,
+                      fit: BoxFit.contain, // Defaults to `true`.
                       thumbnailSize: const ThumbnailSize.square(
                         700,
                       ), // Preferred value.
@@ -169,6 +174,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           ThumbnailFormat.jpeg, // Defaults to `jpeg`.
                     ),
                   ),
+                ),
+                
           ],
         ),
       ),
@@ -179,6 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Next Photo',
         child: const Icon(Icons.arrow_forward),
       ),
+      bottomNavigationBar: TextButton(onPressed: null, child: Text("Deleted marked photo (${_toDelete.length})")),
     );
   }
 }
