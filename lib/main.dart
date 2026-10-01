@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
-
-DateTime now = DateTime.now();
-List<Photo> photos = [
-  Photo('Photo1', now),
-  Photo('Photo2', now),
-  Photo('Screenshot1', now),
-  Photo('Photo3', now),
-  Photo('Screenshot2', now),
-];
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,7 +20,7 @@ class MyApp extends StatelessWidget {
         //
         // TRY THIS: Try running your application with "flutter run". You'll see
         // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
+        // try changing the seedColor in the coRlorScheme below to Colors.green
         // and then invoke "hot reload" (save your changes or press the "hot
         // reload" button in a Flutter-supported IDE, or press "r" if you used
         // the command line to start the app).
@@ -66,6 +58,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _position = 0;
+  bool _isFinished = false;
   List<AssetEntity> _screenshots = [];
   void _incrementPosition() {
     if (_screenshots.length > _position + 1) {
@@ -80,7 +73,9 @@ class _MyHomePageState extends State<MyHomePage> {
         // called again, and so nothing would appear to happen.
       });
     } else {
-      print("Plus de photos");
+      setState(() {
+        _isFinished = true;
+      });
     }
   }
 
@@ -147,16 +142,25 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: .center,
           children: [
             const Text('Test de lapplication de tri de photo'),
-                
-                _screenshots.isEmpty ? 
-                CircularProgressIndicator() : 
-                AssetEntityImage(
-                _screenshots[_position],
-                isOriginal: false, // Defaults to `true`.
-                thumbnailSize: const ThumbnailSize.square(700), // Preferred value.
-                thumbnailFormat: ThumbnailFormat.jpeg, // Defaults to `jpeg`.
-)
-                
+            _isFinished ? 
+              const Text('All screenshots sorted') 
+              : _screenshots.isEmpty ? 
+              CircularProgressIndicator()
+              : Dismissible(
+                    key: ValueKey(_screenshots[_position].id),
+                    onDismissed: (direction) {
+                     _incrementPosition();
+                    },
+                    child: AssetEntityImage(
+                      _screenshots[_position],
+                      isOriginal: false, // Defaults to `true`.
+                      thumbnailSize: const ThumbnailSize.square(
+                        700,
+                      ), // Preferred value.
+                      thumbnailFormat:
+                          ThumbnailFormat.jpeg, // Defaults to `jpeg`.
+                    ),
+                  ),
           ],
         ),
       ),
@@ -169,11 +173,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
-
-class Photo {
-  String name;
-  DateTime date;
-
-  Photo(this.name, this.date);
 }
