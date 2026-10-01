@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 
+DateTime now = DateTime.now();
+List<Photo> photos = [
+  Photo('Photo1', now),
+  Photo('Photo2', now),
+  Photo('Screenshot1', now),
+  Photo('Photo3', now),
+  Photo('Screenshot2', now),
+];
+
 void main() {
   runApp(const MyApp());
 }
@@ -54,21 +63,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int _position = 0;
+  void _incrementPosition() {
+    if (photos.length > _position + 1) {
+      setState(() {
+        _position++;
+        print(photos[_position].name);
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+        // This call to setState tells the Flutter framework that something has
+        // changed in this State, which causes it to rerun the build method below
+        // so that the display can reflect the updated values. If we changed
+        // _counter without calling setState(), then the build method would not be
+        // called again, and so nothing would appear to happen.
+      });
+    } else {
+      print("Plus de photos");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isPhotoNext = photos.length > _position +1;
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -104,19 +119,30 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: .center,
           children: [
-            const Text('You have pushed the button this many rien:'),
+            const Text('Test de lapplication de tri de photo'),
             Text(
-              '$_counter',
+              photos[_position].name,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        backgroundColor: isPhotoNext
+            ? null
+            : Colors.redAccent,
+        onPressed: isPhotoNext ? _incrementPosition : null,
+
+        tooltip: 'Next Photo',
+        child: const Icon(Icons.arrow_forward),
       ),
     );
   }
+}
+
+class Photo {
+  String name;
+  DateTime date;
+
+  Photo(this.name, this.date);
 }
