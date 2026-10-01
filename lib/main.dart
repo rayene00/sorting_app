@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:photo_manager/photo_manager.dart';
+import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
 DateTime now = DateTime.now();
 List<Photo> photos = [
@@ -64,6 +66,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _position = 0;
+  List<AssetEntity> _screenshots = [];
   void _incrementPosition() {
     if (photos.length > _position + 1) {
       setState(() {
@@ -82,8 +85,32 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadAlbums();
+  }
+
+  Future<void> _loadAlbums() async {
+    final PermissionState ps = await PhotoManager.requestPermissionExtend();
+
+    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
+    for (var path in paths) {
+      if (path.name == "Screenshots") {
+        List<AssetEntity> result = await path.getAssetListRange(
+          start: 0,
+          end: 10,
+        );
+        setState(() {
+          _screenshots = result;
+        });
+        print(_screenshots.length);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    bool isPhotoNext = photos.length > _position +1;
+    bool isPhotoNext = photos.length > _position + 1;
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -120,17 +147,21 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: .center,
           children: [
             const Text('Test de lapplication de tri de photo'),
-            Text(
-              photos[_position].name,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+                
+                _screenshots.isEmpty ? 
+                CircularProgressIndicator() : 
+                AssetEntityImage(
+                _screenshots[_position],
+                isOriginal: false, // Defaults to `true`.
+                thumbnailSize: const ThumbnailSize.square(700), // Preferred value.
+                thumbnailFormat: ThumbnailFormat.jpeg, // Defaults to `jpeg`.
+)
+                
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: isPhotoNext
-            ? null
-            : Colors.redAccent,
+        backgroundColor: isPhotoNext ? null : Colors.redAccent,
         onPressed: isPhotoNext ? _incrementPosition : null,
 
         tooltip: 'Next Photo',
