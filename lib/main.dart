@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
-import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -60,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _position = 0;
   List<String> _toDelete = [];
   bool _isFinished = false;
+  bool _isLoading = false;
   List<AssetEntity> _screenshots = [];
   AssetPathEntity? _album;
   void _incrementPosition() {
@@ -82,7 +84,6 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _isFinished = true;
       });
-      
     }
   }
 
@@ -90,20 +91,45 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _loadAlbums();
+    _loadToDelete();
+  }
+
+  Future<void> _loadToDelete() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final result = await prefs.getStringList('toDelete');
+
+    if (result != null) {
+      setState(() {
+        _toDelete = result;
+      });
+    }
+  }
+
+  Future<void> _saveToDelete() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('toDelete', _toDelete);
   }
 
   Future<void> _loadMore() async {
+    if (_isLoading == true) {
+      return;
+    }
     final album = _album;
     if (null == album) {
       return;
     }
-    List<AssetEntity> result = await album.getAssetListRange(
-      start: _screenshots.length,
-      end: _screenshots.length + 10,
-    );
-    setState(() {
-      _screenshots.addAll(result);
-    });
+    _isLoading = true;
+    try {
+      List<AssetEntity> result = await album.getAssetListRange(
+        start: _screenshots.length,
+        end: _screenshots.length + 10,
+      );
+      setState(() {
+        _screenshots.addAll(result);
+      });
+    } finally {
+      _isLoading = false;
+    }
   }
 
   Future<void> _deleteMarked() async {
@@ -112,6 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _toDelete.removeWhere((element) => result.contains(element));
     });
+    _saveToDelete();
   }
 
   Future<void> _loadAlbums() async {
@@ -184,6 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           setState(() {
                             _toDelete.add(_screenshots[_position].id);
                           });
+                          _saveToDelete();
 
                           print(_toDelete.length);
                         } else if (direction == DismissDirection.endToStart) {
@@ -207,13 +235,13 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: isPhotoNext ? null : Colors.redAccent,
-        onPressed: isPhotoNext ? _incrementPosition : null,
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: isPhotoNext ? null : Colors.redAccent,
+      //   onPressed: isPhotoNext ? _incrementPosition : null,
 
-        tooltip: 'Next Photo',
-        child: const Icon(Icons.arrow_forward),
-      ),
+      //   tooltip: 'Next Photo',
+      //   child: const Icon(Icons.arrow_forward),
+      // ),
       bottomNavigationBar: TextButton(
         onPressed: _deleteMarked,
         child: Text("Deleted marked photo (${_toDelete.length})"),
