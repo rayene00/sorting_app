@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> _toDelete = [];
   bool _isFinished = false;
   List<AssetEntity> _screenshots = [];
+  AssetPathEntity? _album;
   void _incrementPosition() {
     if (_screenshots.length > _position + 1) {
       setState(() {
@@ -73,10 +74,15 @@ class _MyHomePageState extends State<MyHomePage> {
         // _counter without calling setState(), then the build method would not be
         // called again, and so nothing would appear to happen.
       });
+      if (_screenshots.length < _position + 3) {
+        _loadMore();
+        print(_screenshots.length);
+      }
     } else {
       setState(() {
         _isFinished = true;
       });
+      
     }
   }
 
@@ -84,6 +90,20 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _loadAlbums();
+  }
+
+  Future<void> _loadMore() async {
+    final album = _album;
+    if (null == album) {
+      return;
+    }
+    List<AssetEntity> result = await album.getAssetListRange(
+      start: _screenshots.length,
+      end: _screenshots.length + 10,
+    );
+    setState(() {
+      _screenshots.addAll(result);
+    });
   }
 
   Future<void> _deleteMarked() async {
@@ -106,6 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
         );
         setState(() {
           _screenshots = result;
+          _album = path;
         });
         print(_screenshots.length);
       }
