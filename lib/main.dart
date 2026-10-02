@@ -86,6 +86,14 @@ class _MyHomePageState extends State<MyHomePage> {
     _loadAlbums();
   }
 
+  Future<void> _deleteMarked() async {
+    final result = await PhotoManager.editor.deleteWithIds(_toDelete);
+    print(result);
+    setState(() {
+      _toDelete.removeWhere((element) => result.contains(element));
+    });
+  }
+
   Future<void> _loadAlbums() async {
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
 
@@ -147,35 +155,34 @@ class _MyHomePageState extends State<MyHomePage> {
                 ? const Text('All screenshots sorted')
                 : _screenshots.isEmpty
                 ? CircularProgressIndicator()
-                :Expanded(child: 
-                 Dismissible(
-                    key: ValueKey(_screenshots[_position].id),
-                    onDismissed: (direction) {
-                      if (direction == DismissDirection.startToEnd) {
-                        setState(() {
-                          _toDelete.add(_screenshots[_position].id);
-                        });
-                        
-                        print(_toDelete.length);
-                      } else if (direction == DismissDirection.endToStart) {
-                        print("keep");
-                      }
-                      _incrementPosition();
-                    },
+                : Expanded(
+                    child: Dismissible(
+                      key: ValueKey(_screenshots[_position].id),
+                      onDismissed: (direction) {
+                        if (direction == DismissDirection.startToEnd) {
+                          setState(() {
+                            _toDelete.add(_screenshots[_position].id);
+                          });
 
-                    child: AssetEntityImage(
-                      _screenshots[_position],
-                      isOriginal: false,
-                      fit: BoxFit.contain, // Defaults to `true`.
-                      thumbnailSize: const ThumbnailSize.square(
-                        700,
-                      ), // Preferred value.
-                      thumbnailFormat:
-                          ThumbnailFormat.jpeg, // Defaults to `jpeg`.
+                          print(_toDelete.length);
+                        } else if (direction == DismissDirection.endToStart) {
+                          print("keep");
+                        }
+                        _incrementPosition();
+                      },
+
+                      child: AssetEntityImage(
+                        _screenshots[_position],
+                        isOriginal: false,
+                        fit: BoxFit.contain, // Defaults to `true`.
+                        thumbnailSize: const ThumbnailSize.square(
+                          700,
+                        ), // Preferred value.
+                        thumbnailFormat:
+                            ThumbnailFormat.jpeg, // Defaults to `jpeg`.
+                      ),
                     ),
                   ),
-                ),
-                
           ],
         ),
       ),
@@ -186,7 +193,10 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Next Photo',
         child: const Icon(Icons.arrow_forward),
       ),
-      bottomNavigationBar: TextButton(onPressed: null, child: Text("Deleted marked photo (${_toDelete.length})")),
+      bottomNavigationBar: TextButton(
+        onPressed: _deleteMarked,
+        child: Text("Deleted marked photo (${_toDelete.length})"),
+      ),
     );
   }
 }
