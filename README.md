@@ -3,9 +3,9 @@
 A simple iOS app (Flutter) to clean up the screenshots you take by accident and never delete. It shows your screenshots one at a time: swipe to keep, swipe to delete.
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="250" alt="Swiping through screenshots" />
+  <img src="docs/screenshots/home.PNG" width="250" alt="Swiping through screenshots" />
   <img src="docs/screenshots/marked.png" width="250" alt="Counter of photos marked for deletion" />
-  <img src="docs/screenshots/done.png" width="250" alt="End of the list" />
+  <img src="docs/screenshots/done.PNG" width="250" alt="End of the list" />
 </p>
 
 ## Features
@@ -35,7 +35,7 @@ Requirements: Flutter SDK, Xcode, an iPhone (the photo library is easier to test
 
 ```bash
 git clone https://github.com/rayene00/sorting_app.git
-cd YOUR_REPO
+cd sorting_app
 flutter pub get
 open ios/Runner.xcworkspace   # select your Apple ID team under Signing & Capabilities
 flutter run -d <your-iphone-id>
