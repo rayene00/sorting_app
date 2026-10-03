@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,7 +33,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Sorting App'),
     );
   }
 }
@@ -68,7 +67,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_screenshots.length > _position + 1) {
       setState(() {
         _position++;
-        print(_screenshots[_position]);
 
         // This call to setState tells the Flutter framework that something has
         // changed in this State, which causes it to rerun the build method below
@@ -79,7 +77,6 @@ class _MyHomePageState extends State<MyHomePage> {
       _savePosition();
       if (_screenshots.length < _position + 3) {
         _loadMore();
-        print(_screenshots.length);
       }
     } else {
       setState(() {
@@ -100,33 +97,23 @@ class _MyHomePageState extends State<MyHomePage> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final result = await prefs.getString('lastId');
 
-    print(result);
     if (result != null) {
       final entity = await AssetEntity.fromId(result);
       if (entity != null) {
-        print(entity.createDateTime);
-        final test = prefs.getInt('lastDate');
-        print(test);
-      } else {
-        print("Deleted photo");
-      }
-    } else {
-      print("The screenshots doesn't exist");
-    }
+      } else {}
+    } else {}
   }
 
   Future<void> _savePosition() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final result = await prefs.setString('lastId', _screenshots[_position].id);
-    print(_screenshots[_position].id);
     final date = _screenshots[_position].createDateTime.millisecondsSinceEpoch;
     await prefs.setInt('lastDate', date);
-    print(date);
   }
 
   Future<void> _loadToDelete() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final result = await prefs.getStringList('toDelete');
+    final result = prefs.getStringList('toDelete');
 
     if (result != null) {
       setState(() {
@@ -164,7 +151,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _deleteMarked() async {
     final result = await PhotoManager.editor.deleteWithIds(_toDelete);
-    print(result);
     setState(() {
       _toDelete.removeWhere((element) => result.contains(element));
     });
@@ -180,7 +166,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (test != null) {
       myDate = DateTime.fromMillisecondsSinceEpoch(test);
     }
-    print(myDate);
 
     FilterOptionGroup? filter;
 
@@ -191,10 +176,9 @@ class _MyHomePageState extends State<MyHomePage> {
           max: myDate.add(const Duration(seconds: 1)),
         ),
       );
-      
     }
-     final paths = await PhotoManager.getAssetPathList(filterOption: filter);
-   
+    final paths = await PhotoManager.getAssetPathList(filterOption: filter);
+
     for (var path in paths) {
       if (path.name == "Screenshots") {
         List<AssetEntity> result = await path.getAssetListRange(
@@ -205,14 +189,12 @@ class _MyHomePageState extends State<MyHomePage> {
           _screenshots = result;
           _album = path;
         });
-        print(_screenshots.length);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isPhotoNext = _screenshots.length > _position + 1;
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -248,7 +230,6 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: .center,
           children: [
-            const Text('Test de lapplication de tri de photo'),
             _isFinished
                 ? const Text('All screenshots sorted')
                 : _screenshots.isEmpty
@@ -262,10 +243,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             _toDelete.add(_screenshots[_position].id);
                           });
                           _saveToDelete();
-
-                          print(_toDelete.length);
                         } else if (direction == DismissDirection.endToStart) {
-                          print("keep");
                         }
                         _incrementPosition();
                       },
@@ -285,13 +263,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: isPhotoNext ? null : Colors.redAccent,
-      //   onPressed: isPhotoNext ? _incrementPosition : null,
-
-      //   tooltip: 'Next Photo',
-      //   child: const Icon(Icons.arrow_forward),
-      // ),
       bottomNavigationBar: TextButton(
         onPressed: _deleteMarked,
         child: Text("Deleted marked photo (${_toDelete.length})"),
