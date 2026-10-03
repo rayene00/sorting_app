@@ -173,8 +173,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _loadAlbums() async {
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final test = prefs.getInt('lastDate');
 
-    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList();
+    DateTime? myDate;
+    if (test != null) {
+      myDate = DateTime.fromMillisecondsSinceEpoch(test);
+    }
+    print(myDate);
+
+    FilterOptionGroup? filter;
+
+    if (myDate != null) {
+      filter = FilterOptionGroup(
+        createTimeCond: DateTimeCond(
+          min: DateTime(2005),
+          max: myDate.add(const Duration(seconds: 1)),
+        ),
+      );
+      
+    }
+     final paths = await PhotoManager.getAssetPathList(filterOption: filter);
+   
     for (var path in paths) {
       if (path.name == "Screenshots") {
         List<AssetEntity> result = await path.getAssetListRange(
