@@ -90,23 +90,10 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _loadAlbums();
     _loadToDelete();
-    _loadLastId();
-  }
-
-  Future<void> _loadLastId() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final result = await prefs.getString('lastId');
-
-    if (result != null) {
-      final entity = await AssetEntity.fromId(result);
-      if (entity != null) {
-      } else {}
-    } else {}
   }
 
   Future<void> _savePosition() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final result = await prefs.setString('lastId', _screenshots[_position].id);
     final date = _screenshots[_position].createDateTime.millisecondsSinceEpoch;
     await prefs.setInt('lastDate', date);
   }
