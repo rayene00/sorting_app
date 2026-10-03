@@ -93,11 +93,35 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _loadAlbums();
     _loadToDelete();
+    _loadLastId();
+  }
+
+  Future<void> _loadLastId() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final result = await prefs.getString('lastId');
+
+    print(result);
+    if (result != null) {
+      final entity = await AssetEntity.fromId(result);
+      if (entity != null) {
+        print(entity.createDateTime);
+        final test = prefs.getInt('lastDate');
+        print(test);
+      } else {
+        print("Deleted photo");
+      }
+    } else {
+      print("The screenshots doesn't exist");
+    }
   }
 
   Future<void> _savePosition() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('lastId', _screenshots[_position].id);
+    final result = await prefs.setString('lastId', _screenshots[_position].id);
+    print(_screenshots[_position].id);
+    final date = _screenshots[_position].createDateTime.millisecondsSinceEpoch;
+    await prefs.setInt('lastDate', date);
+    print(date);
   }
 
   Future<void> _loadToDelete() async {
