@@ -76,6 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // _counter without calling setState(), then the build method would not be
         // called again, and so nothing would appear to happen.
       });
+      _savePosition();
       if (_screenshots.length < _position + 3) {
         _loadMore();
         print(_screenshots.length);
@@ -92,6 +93,11 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _loadAlbums();
     _loadToDelete();
+  }
+
+  Future<void> _savePosition() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lastId', _screenshots[_position].id);
   }
 
   Future<void> _loadToDelete() async {
