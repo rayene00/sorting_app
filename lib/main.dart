@@ -146,7 +146,8 @@ class _MyHomePageState extends State<MyHomePage> {
     final paths = await PhotoManager.getAssetPathList(filterOption: filter);
 
     for (var path in paths) {
-      if (PMDarwinAssetCollectionSubtype.smartAlbumScreenshots == path.albumTypeEx?.darwin?.subtype) {
+      if (PMDarwinAssetCollectionSubtype.smartAlbumScreenshots ==
+          path.albumTypeEx?.darwin?.subtype) {
         List<AssetEntity> result = await path.getAssetListRange(
           start: 0,
           end: 10,
@@ -185,25 +186,38 @@ class _MyHomePageState extends State<MyHomePage> {
                 : _screenshots.isEmpty
                 ? CircularProgressIndicator()
                 : Expanded(
-                    child: Dismissible(
-                      key: ValueKey(_screenshots[_position].id),
-                      onDismissed: (direction) {
-                        if (direction == DismissDirection.startToEnd) {
-                          setState(() {
-                            _toDelete.add(_screenshots[_position].id);
-                          });
-                          _saveToDelete();
-                        }
-                        _incrementPosition();
-                      },
+                    child: Stack(
+                      children: [
+                        if (_screenshots.length > _position + 1)
+                          AssetEntityImage(
+                            _screenshots[_position + 1],
+                            isOriginal: false,
+                            fit: BoxFit.contain,
+                            thumbnailSize: const ThumbnailSize.square(700),
+                            thumbnailFormat: ThumbnailFormat.jpeg,
+                          ),
+                        Dismissible(
+                          resizeDuration: null,
+                          key: ValueKey(_screenshots[_position].id),
+                          onDismissed: (direction) {
+                            if (direction == DismissDirection.startToEnd) {
+                              setState(() {
+                                _toDelete.add(_screenshots[_position].id);
+                              });
+                              _saveToDelete();
+                            }
+                            _incrementPosition();
+                          },
 
-                      child: AssetEntityImage(
-                        _screenshots[_position],
-                        isOriginal: false,
-                        fit: BoxFit.contain,
-                        thumbnailSize: const ThumbnailSize.square(700),
-                        thumbnailFormat: ThumbnailFormat.jpeg,
-                      ),
+                          child: AssetEntityImage(
+                            _screenshots[_position],
+                            isOriginal: false,
+                            fit: BoxFit.contain,
+                            thumbnailSize: const ThumbnailSize.square(700),
+                            thumbnailFormat: ThumbnailFormat.jpeg,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
           ],
