@@ -146,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final paths = await PhotoManager.getAssetPathList(filterOption: filter);
 
     for (var path in paths) {
-      if (path.name == "Screenshots") {
+      if (PMDarwinAssetCollectionSubtype.smartAlbumScreenshots == path.albumTypeEx?.darwin?.subtype) {
         List<AssetEntity> result = await path.getAssetListRange(
           start: 0,
           end: 10,
