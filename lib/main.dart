@@ -14,10 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Sorting App',
-      theme: ThemeData(
-      
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
       home: const MyHomePage(title: 'Sorting App'),
     );
   }
@@ -37,13 +34,14 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> _toDelete = [];
   bool _isFinished = false;
   bool _isLoading = false;
+  bool _permissionDenied = false;
   List<AssetEntity> _screenshots = [];
   AssetPathEntity? _album;
   void _incrementPosition() {
-    if (_screenshots.length > _position + 1) { //to load the next page before the end of the current page.
+    if (_screenshots.length > _position + 1) {
+      //to load the next page before the end of the current page.
       setState(() {
         _position++;
-
       });
       _savePosition();
       if (_screenshots.length < _position + 3) {
@@ -63,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _loadToDelete();
   }
 
-//We store the date beacause it didn't change, while the id can change when screenshots are deleted.
+  //We store the date beacause it didn't change, while the id can change when screenshots are deleted.
   Future<void> _savePosition() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final date = _screenshots[_position].createDateTime.millisecondsSinceEpoch;
@@ -86,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await prefs.setStringList('toDelete', _toDelete);
   }
 
-//to avoid a double loading if a user swipe quickly.
+  //to avoid a double loading if a user swipe quickly.
   Future<void> _loadMore() async {
     if (_isLoading == true) {
       return;
@@ -119,6 +117,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _loadAlbums() async {
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
+
+    if (!(ps.isAuth)) {
+      setState(() {
+        _permissionDenied = true;
+      });
+
+      return;
+    }
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final test = prefs.getInt('lastDate');
 
@@ -164,7 +170,17 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: .center,
           children: [
-            _isFinished
+            _permissionDenied
+                ? Column(
+                    children: [
+                      Text('The app needs the full access to your photos'),
+                      ElevatedButton(
+                        onPressed: PhotoManager.openSetting,
+                        child: Text("Open Settings"),
+                      ),
+                    ],
+                  )
+                : _isFinished
                 ? const Text('All screenshots sorted')
                 : _screenshots.isEmpty
                 ? CircularProgressIndicator()
@@ -184,12 +200,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: AssetEntityImage(
                         _screenshots[_position],
                         isOriginal: false,
-                        fit: BoxFit.contain, 
-                        thumbnailSize: const ThumbnailSize.square(
-                          700,
-                        ), 
-                        thumbnailFormat:
-                            ThumbnailFormat.jpeg, 
+                        fit: BoxFit.contain,
+                        thumbnailSize: const ThumbnailSize.square(700),
+                        thumbnailFormat: ThumbnailFormat.jpeg,
                       ),
                     ),
                   ),

@@ -47,11 +47,10 @@ The photo library permission text is defined by `NSPhotoLibraryUsageDescription`
 
 - Tested on iOS only.
 - The album is found by its English name ("Screenshots"), so it will not be found on an iPhone set to another language.
-- If the permission is denied, the app shows no photos (proper handling is planned).
 
 ## Roadmap
 
-- [ ] Handle denied or limited photo permission
+- [x] Handle denied or limited photo permission
 - [ ] Identify the Screenshots album in a language-independent way
 - [ ] Undo the last swipe
 - [ ] Remove duplicate marks and add tests
